@@ -1,0 +1,221 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>留言板</title>
+
+<script type="text/javascript" src="dist/js/jquery-1.7.2.min.js"></script>
+
+    <script type="text/javascript">
+        var content, this_us, time;
+        
+
+
+        $(document).ready(function () {
+            //-------验证身份------------------------------------------------------//
+            this_us = decode(getParamValue("us"));
+            this_us = trim(this_us);
+            if (getParamValue("timeout") < Math.round(new Date().getTime() / 1000)) {//检测时间，如果当前时间大于允许时间，重新登录
+                window.location.href = "http://2010gis.github.io/";
+            }
+            if (this_us) { //先解码，如果连解码都解不出，就不用验证了，直接重新登录
+                ifhas();// 解码成功，然后再检测用户名，如果用户名不匹配，跳转至登录界面重新登录
+            } else {
+                window.location.href = "http://2010gis.github.io/";  // 解码都解不出，就不用验证了，直接重新登录
+            }
+
+            //--------加载留言-------------------------------------------------------------//
+            $.ajax({//获得 list
+                url: "http://www.bzjg.com.cn/10gis/outputmsg.ashx",
+                type: "GET",
+                dataType: "jsonp",
+                jsonpCallback: 'outputmsg_jsonpCallback', //定义回调函数名称//callback的function名称
+                cache: true, //缓存
+                async: true//异步
+            });
+            
+           
+
+            //------发布按钮绑定------------------------------------------------//
+            $("#send-btn").click(
+            function () {
+
+                 $.ajax({//获得 list
+                     url: "http://www.bzjg.com.cn/10gis/addmsg.ashx?leavemsgtext=" + $("#content").val() + "&us=" + this_us,
+                     type: "GET",
+                     dataType: "jsonp",
+                     jsonpCallback: 'addleavemsg_callback', //定义回调函数名称//callback的function名称
+                     cache: true, //缓存
+                     async: true//异步
+                 });//ajax结束
+                 
+            });//function结束
+        });//document.ready结束
+        
+        function outputmsg_jsonpCallback(o) {
+            var maincontent = $("#main");
+            for (var i = 1; i < o.leavemsg.length; i++) {
+                maincontent.append("<dl class='paper a" + Math.ceil(Math.random() * 5) + "'><dt><span class='username'>" + o.leavemsg[i].us + "</span><span class='num'>No." + o.leavemsg[i].id + "</span></dt><dd class='content'>" + o.leavemsg[i].leavemsg + "</dd><dd class='bottom'><span class='time'>" + o.leavemsg[i].time + "</span></dd></dl>");
+            }
+            //------------加载css----------------------------------------//
+            var head = document.getElementsByTagName('HEAD').item(0);
+            var style = document.createElement('link');
+            style.href = 'dist/css/leavemsg.css';
+            style.rel = 'stylesheet';
+            style.type = 'text/css';
+            head.appendChild(style);
+            //---------   加载js------------------------------------------//
+            
+            var head = document.getElementsByTagName('head').item(0);
+            script = document.createElement('script');
+            script.src = "dist/js/leavemsg.js";
+            script.type = 'text/javascript';
+            head.appendChild(script);
+        }
+
+
+        function addleavemsg_callback(o) {
+            //待写
+            if (decode(o.result) == "Verification successful") {
+                //alert("登录成功，等待跳转"+decode(o.username));
+                alert("成功");
+                location.reload();
+            } else if (decode(o.result) == "Verification Failure") {
+                alert("提交失败,请重试");
+            }
+        }
+
+        //------------------------去除首尾字符-------------------------------------
+        function trim(str) {
+            for (var i = 0; i < str.length && str.charAt(i) == " "; i++);//从左到右得到最右边的第一个非空字符
+            for (var j = str.length; j > 0 && str.charAt(j - 1) == " "; j--);//从右到左得到最左边的第一个非空字符
+            if (i > j) return "";
+            return str.substring(i, j);//得到字符串  
+        }
+
+        //-------------检测是否有该用户名--------------------------------------------------------------------//
+        function ifhas() {
+            $.ajax({
+                type: "GET",
+                async: false,
+                url: "http://www.bzjg.com.cn/10gis/confirmpeople.ashx?username=" + this_us,
+                dataType: "jsonp",
+                cache: true,
+                jsonpCallback: "confirm_jsonpCallback"//callback的function名称
+            });
+        }
+
+        function confirm_jsonpCallback(o) {
+            if (decode(o.result) == "Verification Failure") {
+                window.location.href = "http://2010gis.github.io/";
+            } else {
+                return;
+                //go();不在这里执行，因为会在arcgis for js api还未载入的时候就执行，这是很多还没实例化 。事实证明，dojo的addonload比jquery的documentready执行的晚
+            }
+        }
+
+        //----------------解码-----------------------------------------------------------//
+
+        f23 = {};
+        f23.ts = "8ABC7DLO5MN6Z9EFGdeJfghijkHIVrstuvwWSTUXYabclmnopqKPQRxyz01234";
+        function decode(n)//解密
+        {
+            var c = n.charAt(0) * 1
+            if (isNaN(c)) return ""
+            c = n.substr(1, c) * 1
+            if (isNaN(c)) return ""
+            var nl = n.length, t = [], a, f, b, x = String(c).length + 1, m = function (y) { return f23.ts.indexOf(n.charAt(y)) }, N = f23.ts.length
+            if (nl != x + c) return ""
+            while (x < nl) {
+                a = m(x++)
+                if (a < 5) f = a * N + m(x)
+                else f = (a - 5) * N * N + m(x) * N + m(x += 1)
+                t[t.length] = String.fromCharCode(f)
+                x++
+            }
+            return t.join("")
+        }
+
+
+        //-----------获取地址栏参数----------------------------------------------------------//
+
+        function getParamValue(name) {//地址栏获取参数值
+            var paramsArray = getUrlParams();
+            if (paramsArray != null) {
+                for (var i = 0 ; i < paramsArray.length ; i++) {
+                    for (var j in paramsArray[i]) {
+                        if (j == name) {
+                            return paramsArray[i][j];
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+
+        function getUrlParams() {
+            var search = window.location.search;
+            // 写入数据字典
+            var tmparray = search.substr(1, search.length).split("&");
+            var paramsArray = new Array;
+            if (tmparray != null) {
+                for (var i = 0; i < tmparray.length; i++) {
+                    var reg = /[=|^==]/;    // 用=进行拆分，但不包括==
+                    var set1 = tmparray[i].replace(reg, '&');
+                    var tmpStr2 = set1.split('&');
+                    var array = new Array;
+                    array[tmpStr2[0]] = tmpStr2[1];
+                    paramsArray.push(array);
+                }
+            }
+            // 将参数数组进行返回
+            return paramsArray;
+        }
+    </script>
+</head>
+<body>
+
+	<div id='top'>
+		<span id='send'></span>
+	</div>
+	
+	<div id="main">
+        
+	</div>
+
+	<div id='send-form'>
+		<p class='title'><span>留言</span><a href="" id='close'></a></p>
+		<form action="" name='wish'>
+			<!--<p>
+				<label for="username">用户名：</label>
+				<input type="text" name='username' id='username'/>
+			</p>-->
+			<p>
+				<label for="content">留言：(您还可以输入&nbsp;<span id='font-num'>150</span>&nbsp;个字)</label>
+				<textarea name="content" id='content'></textarea>
+				<div id='phiz'>
+					<img src="img/phiz/zhuakuang.gif" alt="抓狂" />
+					<img src="img/phiz/baobao.gif" alt="抱抱" />
+					<img src="img/phiz/haixiu.gif" alt="害羞" />
+					<img src="img/phiz/ku.gif" alt="酷" />
+					<img src="img/phiz/xixi.gif" alt="嘻嘻" />
+					<img src="img/phiz/taikaixin.gif" alt="太开心" />
+					<img src="img/phiz/touxiao.gif" alt="偷笑" />
+					<img src="img/phiz/qian.gif" alt="钱" />
+					<img src="img/phiz/huaxin.gif" alt="花心" />
+					<img src="img/phiz/jiyan.gif" alt="挤眼" />
+				</div>
+			</p>
+			<span id='send-btn'></span>
+		</form>
+	</div>
+
+<!--[if IE 6]>
+<script type="text/javascript" src="js/iepng.js"></script>
+<script type="text/javascript">
+DD_belatedPNG.fix('#send,#close,.close');
+</script>
+<![endif]-->
+    
+</body>
+</html>

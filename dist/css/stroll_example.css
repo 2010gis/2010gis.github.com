@@ -1,0 +1,79 @@
+/**
+ * Demo page styles, all list scroll effects styles are in sctroll.css
+ */
+
+.span2 {
+	background: #323232;
+	font-family: 'Lato', Times, 'Times New Roman', serif;
+	font-size: 16px;
+	color: #eee;
+	margin-bottom: 40px;
+	line-height: 1;
+}
+header {
+    background: rgba(0, 0, 0, 0.2);
+    margin-bottom: 30px;
+    padding: 20px 100px 20px 20px;
+    font-size: 20px;
+    line-height: 1.3em;
+}
+
+    header div {
+        margin-top: 10px;
+    }
+
+a {
+    color: black;
+    text-decoration:none;
+}
+
+article {
+    display: inline-block;
+    margin: 0px;
+}
+
+
+
+small {
+    opacity: 0.6;
+    font-style: italic;
+    font-size: 14px;
+    margin-left: 5px;
+}
+
+/**
+ * List used for the demo page
+ */
+#leftlist ul {
+    position: relative;
+    width: 300px;
+    height: 548px;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    list-style: none;
+    -webkit-perspective: 400px;
+    -moz-perspective: 400px;
+    -ms-perspective: 400px;
+    -o-perspective: 400px;
+    perspective: 400px;
+}
+
+.helix li {
+    position: relative;
+    padding: 16px;
+    background: #eee;
+    color: #252525;
+    font-size: 18px;
+    z-index: 2;
+    -webkit-transform: translateZ(0px);
+    -moz-transform: translateZ(0px);
+    -ms-transform: translateZ(0px);
+    -o-transform: translateZ(0px);
+    transform: translateZ(0px);
+}
+
+#leftlist ul li:nth-child(odd) {
+    background: #fff;
+}

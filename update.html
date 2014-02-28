@@ -1,0 +1,166 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>修改个人信息</title>
+    <link rel="Stylesheet" href="http://www.bzjg.com.cn/esri/arcgis_js_api/library/3.5/jsapi/js/dojo/dijit/themes/tundra/tundra.css" />
+    <link rel="stylesheet" href="http://www.bzjg.com.cn/esri/arcgis_js_api/library/3.5/jsapi/js/dojo/dijit/themes/claro/claro.css" />
+    <link rel="stylesheet" href="http://www.bzjg.com.cn/esri/arcgis_js_api/library/3.5/jsapi/js/esri/css/esri.css" />
+    <script type="text/javascript" src="http://www.bzjg.com.cn/esri/arcgis_js_api/library/3.5/jsapi/default.ashx"></script>
+    <link rel="stylesheet" href="dist/css/bootstrap.min.css" />
+    <script type="text/javascript" src="dist/js/jquery-1.7.2.min.js"></script>
+    <script type="text/javascript" src="dist/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="dist/js/update.js"></script>
+    <link rel="stylesheet" href="dist/js/uploadify/css/uploadify.css" />
+    <script type="text/javascript" src="dist/js/uploadify/script/jquery.uploadify.v2.1.0.min.js"></script>
+    <script type="text/javascript" src="dist/js/uploadify/script/swfobject.js"></script>
+    
+    <style type="text/css">
+        /*加载框css*/
+        * {
+            margin: 0;
+            padding: 0;
+            list-style-type: none;
+        }
+
+        a, img {
+            border: 0;
+        }
+
+        .demo {
+            margin: 100px auto 0 auto;
+            width: 400px;
+            text-align: center;
+            font-size: 18px;
+        }
+
+            .demo .action {
+                color: #3366cc;
+                text-decoration: none;
+                font-family: "微软雅黑","宋体";
+            }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 998;
+            width: 100%;
+            height: 100%;
+            _padding: 0 20px 0 0;
+            background: #f6f4f5;
+            display: none;
+        }
+
+        .showbox {
+            position: fixed;
+            top: 0;
+            left: 50%;
+            z-index: 9999;
+            opacity: 0;
+            filter: alpha(opacity=0);
+            margin-left: -80px;
+        }
+
+        *html, *html body {
+            background-image: url(about:blank);
+            background-attachment: fixed;
+        }
+
+        *html .showbox, *html .overlay {
+            position: absolute;
+            top: expression(eval(document.documentElement.scrollTop));
+        }
+
+        #AjaxLoading {
+            border: 1px solid #8CBEDA;
+            color: #37a;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+            #AjaxLoading div.loadingWord {
+                width: 180px;
+                height: 50px;
+                line-height: 50px;
+                border: 2px solid #D6E7F2;
+                background: #fff;
+            }
+
+            #AjaxLoading img {
+                margin: 10px 15px;
+                float: left;
+                display: inline;
+            }
+    </style>
+</head>
+<body>
+    <div class="navbar navbar-fixed-top">
+        <div class="navbar-inner">
+            <a class="brand" href="#">&nbsp;&nbsp;&nbsp;修改个人信息</a>
+            <ul class="nav">
+                <li><a href="#">返回主页</a></li>
+                <li><a href="javascript:void(0);" onclick="window.opener=null; window.open('','_self');window.close();">退出</a></li>
+                <li style="margin-left: 100px"><a href="#"></a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="container-fluid">
+        <div class="row-fluid">
+            <div class="span3">
+                <!--信息修改的div-->
+                <div style="border: 1px solid red; margin-top: 50px">
+                    <p style="text-align: center; color: red; font-size: larger">修改信息</p>
+                    <div id="infodiv" style="margin: 20px 0px 0px 20px">
+                        <ul>
+                            <li>联系方式：
+                            <abbr title="点击即可编辑">023-65362555</abbr></li>
+                            <li>QQ：
+                            <abbr title="点击即可编辑">023-65362555</abbr></li>
+                            <li>地址：<abbr title="点击即可编辑">重庆师范大学</abbr></li>
+                        </ul>
+
+
+                    </div>
+                    <button id="longlat_btn" class="btn  btn-warning" style="margin-left: 50px; margin-top: 0px" type="button" title="要修改所在经纬度请点击按钮后点击地图上你所在的位置即可修改，每次修改都必须点击此按钮" onclick="bind()">
+                        修改经纬度</button><br />
+                    <div style="margin: 8px 0px 0px 40px; display: none" id="long_lat_div">
+                        请点击地图 !<br />
+                        <input id="long" type="text" style="width: 77px; margin-left: 10px" placeholder="经度">
+                        <input id="lat" type="text" style="width: 77px;" placeholder="纬度">
+                    </div>
+
+                    <button class="btn btn-large btn-danger" type="button" style="margin: 5px 0px 0px 40px" onclick="update_info()">确认修改</button>
+
+                </div>
+
+                <!--照片修改的div-->
+                <div style="margin-top: 50px; text-align: center">
+                    <a id="changephoto_a" href="javascript:void(0);" onclick="showphotodiv()">修改照片</a>
+                    <div style="display: none" id="photodiv">
+                        <div id="fileQueue"></div>
+                        <input type="file" name="uploadify" id="uploadify" />
+                        <p>
+                            <a href="javascript:$('#uploadify').uploadifySettings('scriptData', { 'username': username});$('#uploadify').uploadifyUpload()">上传</a>| 
+      <a href="javascript:$('#uploadify').uploadifyClearQueue()">取消上传</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="span9" style="border: 1px solid red; margin-top: 50px">
+                <!--Body content-->
+                <div id="map" style="width: 980px; height: 550px; margin-top: 0px; border: 1px solid red;">
+                </div>
+            </div>
+        </div>
+
+
+        <div id="AjaxLoading" class="showbox">
+            <div class="loadingWord">
+                <img alt="正在加载数据" src="../img/waiting.gif" />正在加载数据...
+            </div>
+        </div>
+</body>
+</html>
